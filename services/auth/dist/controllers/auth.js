@@ -6,13 +6,13 @@ import axios from "axios";
 export const loginUser = TryCatch(async (req, res) => {
     const { code } = req.body;
     if (!code) {
-        res.status(400).json({
+        return res.status(400).json({
             message: "Authorization code is required"
         });
     }
     const googleres = await oauth2client.getToken(code);
     oauth2client.setCredentials(googleres.tokens);
-    const userRes = await axios.get(`https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleres.tokens}`);
+    const userRes = await axios.get(`https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleres.tokens.access_token}`);
     const { email, name, picture } = userRes.data;
     let user = await User.findOne({ email });
     if (!user) {
@@ -57,5 +57,5 @@ export const addUserRole = TryCatch(async (req, res) => {
 });
 export const myProfile = TryCatch(async (req, res) => {
     const user = req.user;
-    return res.json(user);
+    return res.json({ user });
 });
